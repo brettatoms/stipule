@@ -1,0 +1,1 @@
+web: python stipule/main.py
