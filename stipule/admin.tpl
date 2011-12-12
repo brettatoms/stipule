@@ -22,8 +22,17 @@
 <body>
   <h1>Stipule - Admin</h1>
   <div>
+    {{ message }}
+  </div>
+  <div>
 	<p>Upload Accessions</p>
-	
+	<form action="/admin/upload?class=accession" enctype="multipart/form-data" 
+	      method="post">
+	  <input type="file" name="data" />
+	  <input type="submit" value="Upload" />
+	</form>
+  </div>
+  <div>
 	<p>Upload Plants</p>
   </div>
   <div>
