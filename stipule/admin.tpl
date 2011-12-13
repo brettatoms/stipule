@@ -27,21 +27,26 @@
   </div>
 
   <div class="action_box">
-	<p>Upload Accessions</p>
-	<form action="/admin/upload?class=accession" enctype="multipart/form-data" 
-	      method="post">
-	  <input type="file" name="data" />
-	  <input type="submit" value="Upload" />
-	</form>
+    <p>Upload Accessions</p>
+    <form action="/admin" method="post" enctype="multipart/form-data"> 
+      <input type="file" name="data" />
+      <input type="hidden" name="action" value="upload_accessions" />
+      <input type="submit" value="Upload" />	  
+    </form>
   </div>
 
   <div class="action_box">
-	<p>Upload Plants</p>
+    <p>Upload Plants</p>
+    <form action="/admin" method="post" enctype="multipart/form-data"> 
+      <input type="file" name="data" />
+      <input type="hidden" name="action" value="upload_plants" />
+      <input type="submit" value="Upload" />	  
+    </form>
   </div>
 
   <div class="action_box">
     <p>
-      <form action="/admin" method="POST">
+      <form action="/admin" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="action" value="admin_create" />
 	<input type="submit" value="Create database" />	
       </form>
