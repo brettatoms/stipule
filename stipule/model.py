@@ -1,11 +1,13 @@
 import sqlalchemy as sa
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 # TODO: use ConfigParser to read uri from stipule.config
-uri = 'sqlite:///:memory:'
+#uri = 'sqlite:///:memory:'
+uri = 'sqlite:///test.db'
 engine = sa.create_engine(uri, echo=True)
-
+Session = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()
 
 class Accession(Base):
@@ -13,10 +15,10 @@ class Accession(Base):
     acc_num = Column(String, primary_key=True)
     genus = Column(String)
     name = Column(String)
-    range = Column(String)
     common_name = Column(String)
+
+    range = Column(String)
     misc_notes = Column(String)
-    recd_dt = Column(String)
     recd_dt = Column(String)
     recd_amt = Column(String)
     recd_as = Column(String)
@@ -27,6 +29,7 @@ class Accession(Base):
     psource_acc_num = Column(String)
     psource_acc_dt = Column(String)
     psource_misc = Column(String)
+
 
 class Plant(Base):
     __tablename__ = 'plant'

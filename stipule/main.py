@@ -5,6 +5,7 @@ import traceback
 from bottle import request, route, run, template, debug, post, get, put
 
 import model
+from model import Accession, Plant
 
 @route('/')
 def index():
@@ -14,12 +15,49 @@ def index():
     return template('main', body=body)
 
 
+def make_accession_link(acc_num):
+    acc_link = '<a %(style)s href="/acc?acc_num=%(acc_num)s">%(acc_num)s</a>'
+    style = ''
+    session = model.Session()
+    query = session.query(Plant).filter(Plant.acc_num == acc_num and not Plant.condition in ("D", "R", "U"))
+    if query.count() == 0:
+        style = 'style="color: #C00"'
+
+    return acc_link % {'style': style, 'acc_num': acc_num}
+
+
+@route('/acc')
+def acc():
+    """
+    Return the page for a single accession.
+    """
+    acc_num = request.query.get('acc_num', '').strip()
+    query = session.query(Accession).filter(Accession.acc_num==q)
+
+
 @route('/search')
 def search():
     """
+    Search for accessions.
     """
-    body = ''
-    return template('main', body=body)
+    p = "<p>%s</p>"
+    body = []
+    q = request.query.get('q', '').strip()
+    if not q:
+        return template('main', body='')
+    session = model.Session()
+    query = session.query(Accession).\
+        filter(Accession.acc_num==q or Accession.genus==q).\
+        order_by(Accession.name)
+    results = []
+    for row in query:
+        link = make_accession_link(row.acc_num)
+        results.append('<div>%(link)s - %(name)s</div>' \
+                           % {'link': link, 'name': row.name})
+    session.close()
+    body.append("\n".join(results))
+    body.append("<p>%s results.</p>" % len(results))
+    return template('main', body='\n'.join(body))
 
 
 @get('/admin')
@@ -31,18 +69,54 @@ def admin_get():
     return template('admin', message=msg)
 
 
-#ACCESSIONS   GENUS	NAME	SPECIES	SPECIES_2	CULTIVAR	CULTIVAR_2	FAM	COMMON_NAMES	RANGE	MISCELLANEOUS	RECEIVED_DT	NUM_RCD	RECEIVED_AS	RECD_SIZE	RECD_NOTES	PSOURCE_CURRENT	PSOURCE_ACC_NUM	PS_ACC_DT	PSOURCE_MISC
 def make_accession(row):
+    """
+    Convert a row from the BG-Base CSV dump to our model.
+    """
     acc = dict()
-    acc['acc_num'] = row['ACCESSIONS']
+    set_row = lambda d, s: acc.setdefault(d, row[s].decode('iso-8859-1'))
+    colmap = {}
+    colmap['acc_num'] = 'ACCESSIONS'
+    colmap['genus'] = 'GENUS'
+    colmap['name'] = 'NAME'
+    colmap['common_name'] = 'COMMON_NAMES'
+    colmap['range'] = 'RANGE'
+    colmap['misc_notes'] = 'MISCELLANEOUS'
+    colmap['recd_dt'] = 'RECEIVED_DT'
+    colmap['recd_amt'] = 'NUM_RCD'
+    colmap['recd_as'] = 'RECEIVED_AS'
+    colmap['recd_size'] = 'RECD_SIZE'
+    colmap['recd_notes'] = 'RECD_NOTES'
+    colmap['psource_current'] = 'PSOURCE_CURRENT'
+    colmap['psource_acc_num'] = 'PSOURCE_ACC_NUM'
+    colmap['psource_acc_dt'] = 'PS_ACC_DT'
+    colmap['psource_misc'] = 'PSOURCE_MISC'
+    for key, value in colmap.iteritems():
+        set_row(key, value)
     return acc
 
 
-# ACC_NUM*QUAL	ACCESSION_#	QUAL	S	CURRENT_LOCATION	CUR_LOC	CLCT	CUR_PLT_DT	#_PL	CO	CUR_CK_DT	CURRENT_CHECK_NOTE	CUR_CHK_BY
 def make_plant(row):
+    """
+    Convert a row from the BG-Base CSV dump to our model.
+    """
     plant = dict()
-    plant['acc_num'] = row['ACCESSION_#']
-    plant['qualifier'] = row['QUAL']
+    set_row = lambda d, s: plant.setdefault(d, row[s].decode('iso-8859-1'))
+    colmap = {}
+    colmap['acc_num'] = 'ACCESSION_#'
+    colmap['qualifier'] = 'QUAL'
+    colmap['sex'] = 'S'
+    colmap['loc_name'] = 'CURRENT_LOCATION'
+    colmap['loc_code'] = 'CUR_LOC'
+    colmap['loc_change_type'] = 'CLCT'
+    colmap['loc_date'] = 'CUR_PLT_DT'
+    colmap['loc_nplants'] = '#_PL'
+    colmap['condition'] = 'CO'
+    colmap['checked_data'] = 'CUR_CK_DT'
+    colmap['checked_note'] = 'CURRENT_CHECK_NOTE'
+    colmap['checked_by'] = 'CUR_CHK_BY'
+    for key, value in colmap.iteritems():
+        set_row(key, value)
     return plant
 
 
@@ -57,6 +131,7 @@ def admin_post():
     if action == 'admin_create':
         msg = "Created a new database."
         try:
+            model.Base.metadata.drop_all(model.engine)
             model.Base.metadata.create_all(model.engine)
         except Exception, e:
             msg = 'Error creating tables:\n' + traceback.format_exc()
@@ -70,7 +145,7 @@ def admin_post():
                 if not row['ACCESSIONS'].strip(): # why are them acc nums w/ ' '
                    continue
                 rows.append(make_accession(row))
-            insert = model.Accession.__table__.insert()
+            insert = Accession.__table__.insert()
             conn = model.engine.connect()
             conn.execute(insert, *rows)
             conn.close()
@@ -88,7 +163,7 @@ def admin_post():
                 if not row['QUAL'] or not row['QUAL'].strip():
                    continue
                 rows.append(make_plant(row))
-            insert = model.Plant.__table__.insert()
+            insert = Plant.__table__.insert()
             conn = model.engine.connect()
             conn.execute(insert, *rows)
             conn.close()
@@ -96,30 +171,6 @@ def admin_post():
         else:
             msg = "Choose a file."
     return template('admin', message=msg)
-
-
-
-
-@post('/admin/upload')
-def admin_upload():
-    cls = request.query.get('class', '').lower()
-    data = request.files.file
-    if cls == 'plant':
-        cls = model.Plant
-        return 'imported Plants'
-
-    elif cls == 'accession':
-        cls = model.Accession
-        return 'imported Accessions'
-    else:
-        return ['unknown class: %s' % cls]
-
-    # rows = []
-    # for row in data:
-    #     rows.append(row)
-    # return rows
-
-
 
 
 # TODO: use ConfigParser to read host, port from config

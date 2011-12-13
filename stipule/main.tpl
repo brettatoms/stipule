@@ -20,7 +20,7 @@
   <!-- <script type="text/javascript"> google.load("jquery", "1.3.2"); </script> -->
 </head>
 <body onload="setFocus()">
-  {{ body }}
+  {{!body}}
   <br />
   <form name="search_form" action="/search" method="get">
     <div>
