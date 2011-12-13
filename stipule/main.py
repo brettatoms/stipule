@@ -2,7 +2,7 @@ import csv
 import sqlalchemy as sa
 import traceback
 
-from bottle import request, route, run, template, debug, post
+from bottle import request, route, run, template, debug, post, get
 
 import model
 
@@ -22,26 +22,32 @@ def search():
     return template('main', body=body)
 
 
-@route('/admin')
-def admin():
-    return template('admin')
+@get('/admin')
+def admin_get():
+    msg = request.forms.get('message', '')
+    name = request.forms.get('name', '')
+    if name == 'admin_create':
+        msg = "Created database"
+    return template('admin', message=msg)
 
 
-@route('/admin/create')
-def admin_create():
+@post('/admin')
+def admin_post():
     """
     Action to create the database tables
     """
     # TODO: option to drop existing tables first
-    s = []
-    try:
-        model.Base.metadata.create_all(model.engine)
-    except Exception, e:
-        s.append('Error creating tables:')
-        s.append(traceback.format_exc())
-    else:
-        s.append('All tables created.')
-    return s
+    action = request.forms.get('action', '')
+    msg = action
+    if action == 'admin_create':
+        msg = "Created databased"
+        try:
+            model.Base.metadata.create_all(model.engine)
+        except Exception, e:
+            msg = 'Error creating tables:\n' + traceback.format_exc()
+    return template('admin', message=msg)
+
+
 
 
 @post('/admin/upload')

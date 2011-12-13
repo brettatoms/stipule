@@ -6,6 +6,7 @@
   <meta name="MobileOptimized" />
   <style type="text/css">
     a {color: #00C}
+    .action_box {background-color: #CCC; margin: 10px; padding: 10px}
   </style>
   <script type="text/javascript">
     var formInUse = false;
@@ -24,7 +25,8 @@
   <div>
     {{ message }}
   </div>
-  <div>
+
+  <div class="action_box">
 	<p>Upload Accessions</p>
 	<form action="/admin/upload?class=accession" enctype="multipart/form-data" 
 	      method="post">
@@ -32,12 +34,17 @@
 	  <input type="submit" value="Upload" />
 	</form>
   </div>
-  <div>
+
+  <div class="action_box">
 	<p>Upload Plants</p>
   </div>
-  <div>
+
+  <div class="action_box">
     <p>
-    <a href="/admin/create">Create new database</a>
+      <form action="/admin" method="POST">
+	<input type="hidden" name="action" value="admin_create" />
+	<input type="submit" value="Create database" />	
+      </form>
     </p>
   </div>
 
