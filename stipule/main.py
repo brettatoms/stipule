@@ -285,5 +285,5 @@ def admin_post():
 # TODO: use ConfigParser to read host, port from config
 debug(True)
 #run(host='localhost', port='8080', reloader=True)
-run(host='naplesbg.herokuapp.com', port=os.environ['PORT'], reloader=True)
+run(host='0.0.0.0', port=os.environ['PORT'], reloader=True)
 
