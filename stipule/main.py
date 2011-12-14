@@ -1,11 +1,27 @@
+import cgi
 import csv
-import sqlalchemy as sa
+import datetime
 import traceback
 
 from bottle import request, route, run, template, debug, post, get, put
+import sqlalchemy as sa
 
 import model
 from model import Accession, Plant
+
+plant_change_form_uri = 'http://spreadsheets.google.com/viewform?formkey=dG03bFlPNDMwUnlUazZXVUdTdjdZeXc6MQ'
+
+condition_map = {'A': 'Alive',
+                 'E': 'Excellent',
+                 'G': 'Good',
+                 'F': 'Fair',
+                 'P': 'Poor',
+                 'Q': 'Questionable',
+                 'I': 'Indistinguishable',
+                 'D': 'Dead',
+                 'R': 'Deaccessioned/Removed',
+                 'U': 'Unable to locate'}
+
 
 @route('/')
 def index():
@@ -15,15 +31,94 @@ def index():
     return template('main', body=body)
 
 
-def make_accession_link(acc_num):
+def build_accession_link(acc_num):
     acc_link = '<a %(style)s href="/acc?acc_num=%(acc_num)s">%(acc_num)s</a>'
     style = ''
     session = model.Session()
     query = session.query(Plant).filter(Plant.acc_num == acc_num and not Plant.condition in ("D", "R", "U"))
     if query.count() == 0:
         style = 'style="color: #C00"'
-
+    session.close()
     return acc_link % {'style': style, 'acc_num': acc_num}
+
+
+def build_accession_table(acc):
+    """
+    Return an html table from the acc argument.
+    """
+    parts = ['<table>']
+    row = '<tr><td>%s</td><td>%s</td></tr>'
+        #parts.append(row % ('Name:', acc.name))
+    name_href = '<a href="/acc?name=%(name)s">%(name)s</a>'
+    google_href = '<span style="margin-left: 40px"><a href="http://google.com/search?q=%(name)s">google</a></span>'
+    name_href = name_href + google_href
+    parts.append(row % ('Name:', name_href%{'name': cgi.escape(acc.name)}))
+    parts.append(row % ('Acc #:', acc.acc_num))
+    parts.append(row % ('Common name:', acc.common_name))
+    parts.append(row % ('Range:', acc.range))
+    parts.append(row % ("Misc. Notes:", acc.misc_notes))
+    parts.append('<br />')
+    parts.append(row % ("Rec'd. Date:", acc.recd_dt))
+    parts.append(row % ("Rec'd. Amt:",acc.recd_amt))
+    parts.append(row % ("Rec'd. Size:", acc.recd_size))
+    parts.append(row % ("Rec'd. As:",
+                        name_href % {'name': cgi.escape(acc.name)}))
+    parts.append(row % ("Rec'd. Notes:", acc.recd_notes))
+
+    parts.append(row % ("Source:", acc.psource_current))
+    parts.append(row % ("Source Acc. #:", acc.psource_acc_num))
+    parts.append(row % ("Source Acc. Date:", acc.psource_acc_dt))
+    parts.append(row % ("Source Notes:", acc.psource_misc))
+    parts.append('</table>')
+    return ''.join(parts)
+
+
+def build_plants_table(accession):
+    """
+    Return an html table with the plants of acc_num.
+    """
+    parts = ['<div>']
+    parts.append('Plants:')
+    parts.append('<table>')
+    map_href = '<a href="http://naplesbg.heroku.com/static/map-current.png">map</a>'
+    plants_href = '<a href="%(form)s&entry_0=%(name)s&entry_1=%(date)s&entry_2=%(acc_num)s&entry_3=%(qualifier)s&entry_5=%(location)s">%(plant)s</a>'
+    for plant in accession.plants:
+        parts.append('<tr>')
+        href = plants_href % \
+            {'form': plant_change_form_uri, 'name': accession.name,
+             'acc_num': accession.acc_num, 'qualifier': plant.qualifier,
+             'date': datetime.date.today(), 'location': plant.loc_code,
+             'plant': '%s*%s' % (accession.acc_num, plant.qualifier)}
+        map_span = '<span style="margin-left: 40px">%s</span>' % map_href
+        parts.append('<td>%s:</td><td>%s (%s) %s</td>' \
+                         % (href, plant.loc_name, plant.loc_code, map_span))
+        parts.append('</tr><tr>')
+        nplants = plant.loc_nplants
+        if nplants in (None, ''):
+            nplants = '??'
+        loc_date = plant.loc_date
+        if not loc_date in (None, ''):
+            loc_date = '??'
+
+        parts.append('<td>&nbsp;</td><td>%s plants on %s</td>' \
+                         % (nplants, plant.loc_date))
+        parts.append('</tr><tr>')
+        checked_date = plant.checked_date
+        if not checked_date:
+            checked_data = '??'
+        condition = condition_map.get(plant.condition, plant.condition)
+        if plant.condition in ('DRU'):
+            condition = '<span style="color:red">%s</span>' % condition
+        parts.append('<td>&nbsp;</td><td>Condition: %s on %s</td>' \
+                         % (condition, checked_date))
+        parts.append('</tr><tr>')
+        parts.append('<td>&nbsp;</td><td>Checked by %s: %s</td>' \
+                         % (plant.checked_by, plant.checked_note))
+        parts.append('</tr>')
+    parts.append('</table>')
+    parts.append('</div>')
+    return ''.join(parts)
+
 
 
 @route('/acc')
@@ -32,7 +127,13 @@ def acc():
     Return the page for a single accession.
     """
     acc_num = request.query.get('acc_num', '').strip()
-    query = session.query(Accession).filter(Accession.acc_num==q)
+    session = model.Session()
+    query = session.query(Accession).filter(Accession.acc_num==acc_num)
+    acc = query.first()
+    acc_table = build_accession_table(acc)
+    plant_table = build_plants_table(acc)
+    session.close()
+    return template('main', body=acc_table + '<br />' + plant_table)
 
 
 @route('/search')
@@ -51,7 +152,7 @@ def search():
         order_by(Accession.name)
     results = []
     for row in query:
-        link = make_accession_link(row.acc_num)
+        link = build_accession_link(row.acc_num)
         results.append('<div>%(link)s - %(name)s</div>' \
                            % {'link': link, 'name': row.name})
     session.close()

@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 # TODO: use ConfigParser to read uri from stipule.config
 #uri = 'sqlite:///:memory:'
@@ -29,6 +29,9 @@ class Accession(Base):
     psource_acc_num = Column(String)
     psource_acc_dt = Column(String)
     psource_misc = Column(String)
+
+    plants = relationship("Plant", backref="accession",
+                          order_by="Plant.qualifier")
 
 
 class Plant(Base):
