@@ -1,2 +1,3 @@
 SQLAlchemy==0.7.4
 bottle==0.10.2
+psycopg2

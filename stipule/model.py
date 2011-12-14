@@ -8,11 +8,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 # TODO: use ConfigParser to read uri from stipule.config
 #uri = 'sqlite:///:memory:'
 #uri = 'sqlite:///test.db'
-uri = ''
-if os.environ.has_key('DATABASE_URL'):
-    uri = os.environ['SHARED_DATABASE_URL']
-# if not uri:
-#     raise ValueError("DATABASE_URL is empty")
+uri = os.environ['DATABASE_URL']
 engine = sa.create_engine(uri, echo=True)
 Session = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()
