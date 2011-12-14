@@ -1,16 +1,23 @@
 import cgi
 import csv
 import datetime
+import os
 import traceback
 
-from bottle import request, route, run, template, debug, post, get, put
+from bottle import request, route, run, template, debug, post, get, put, \
+    TEMPLATE_PATH
 import sqlalchemy as sa
 
 import model
 from model import Accession, Plant
 
+# look in current directory for templates
+TEMPLATE_PATH.append(os.path.split(__file__)[0])
+
+# URI for form for updating plants
 plant_change_form_uri = 'http://spreadsheets.google.com/viewform?formkey=dG03bFlPNDMwUnlUazZXVUdTdjdZeXc6MQ'
 
+# maps of plant condition codes to strings
 condition_map = {'A': 'Alive',
                  'E': 'Excellent',
                  'G': 'Good',
@@ -148,7 +155,8 @@ def search():
         return template('main', body='')
     session = model.Session()
     query = session.query(Accession).\
-        filter(Accession.acc_num==q or Accession.genus==q).\
+        filter(Accession.acc_num==q or \
+                   sa.func.lower(Accession.genus)==q.lower()).\
         order_by(Accession.name)
     results = []
     for row in query:
