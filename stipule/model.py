@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 #uri = 'sqlite:///test.db'
 uri = os.getenv('DATABASE_URL')
 if not uri:
-    raise ValueError('URI is empty")
+    raise ValueError("URI is empty")
 engine = sa.create_engine(uri, echo=True)
 Session = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()
