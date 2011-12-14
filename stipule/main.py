@@ -87,7 +87,7 @@ def build_plants_table(accession):
     parts = ['<div>']
     parts.append('Plants:')
     parts.append('<table>')
-    map_href = '<a href="http://naplesbg.heroku.com/static/map-current.png">map</a>'
+    map_href = '<a href="/static/map-current.png">map</a>'
     plants_href = '<a href="%(form)s&entry_0=%(name)s&entry_1=%(date)s&entry_2=%(acc_num)s&entry_3=%(qualifier)s&entry_5=%(location)s">%(plant)s</a>'
     for plant in accession.plants:
         parts.append('<tr>')
@@ -284,4 +284,6 @@ def admin_post():
 
 # TODO: use ConfigParser to read host, port from config
 debug(True)
-run(host='localhost', port='8080', reloader=True)
+#run(host='localhost', port='8080', reloader=True)
+run(host='naplesbg.herokuapp.com', port=os.environ['PORT'], reloader=True)
+
