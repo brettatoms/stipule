@@ -154,10 +154,12 @@ def search():
     if not q:
         return template('main', body='')
     session = model.Session()
+    lower = lambda c: sa.func.lower(c)
     query = session.query(Accession).\
-        filter(Accession.acc_num==q or \
-                   sa.func.lower(Accession.genus)==q.lower()).\
-        order_by(Accession.name)
+        filter(sa.or_(Accession.acc_num==q,
+                      lower(Accession.genus)==q.lower(),
+                      lower(Accession.common_name).like('%%%s%%'%q.lower()))).\
+                      order_by(Accession.name)
     results = []
     for row in query:
         link = build_accession_link(row.acc_num)

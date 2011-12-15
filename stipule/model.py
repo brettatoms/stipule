@@ -16,9 +16,9 @@ Base = declarative_base()
 class Accession(Base):
     __tablename__ = 'accession'
     acc_num = Column(String, primary_key=True)
-    genus = Column(String)
+    genus = Column(String, index=True)
     name = Column(String)
-    common_name = Column(String)
+    common_name = Column(String, index=True)
 
     range = Column(String)
     misc_notes = Column(String)
@@ -28,7 +28,7 @@ class Accession(Base):
     recd_size = Column(String)
     recd_notes = Column(String)
 
-    psource_current = Column(String)
+    psource_current = Column(String, index=True)
     psource_acc_num = Column(String)
     psource_acc_dt = Column(String)
     psource_misc = Column(String)
@@ -44,8 +44,8 @@ class Plant(Base):
 
     sex = Column(String)
 
-    loc_name = Column(String)
-    loc_code = Column(String)
+    loc_name = Column(String, index=True)
+    loc_code = Column(String, index=True)
     loc_change_type = Column(String)
     loc_date = Column(String)
     loc_nplants = Column(String)
