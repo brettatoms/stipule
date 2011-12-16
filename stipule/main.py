@@ -163,7 +163,7 @@ def search():
     lower = lambda c: sa.func.lower(c)
     query = session.query(Accession).\
         filter(sa.or_(Accession.acc_num==q,
-                      Accession.acc_num.like('%%%s', q.lower()),
+                      Accession.acc_num.like('%%%s' % q.lower()),
                       lower(Accession.genus)==q.lower(),
                       lower(Accession.common_name).like('%%%s%%'%q.lower()))).\
                       order_by(Accession.name)
