@@ -137,10 +137,18 @@ def acc():
     session = model.Session()
     query = session.query(Accession).filter(Accession.acc_num==acc_num)
     acc = query.first()
-    acc_table = build_accession_table(acc)
-    plant_table = build_plants_table(acc)
+    body = []
+    body.append(build_accession_table(acc))
+    body.append('<br />')
+    body.append(build_plants_table(acc))
+    body.append('<br />')
+    # append "Add a plant..." for adding more plants
+    add_form_href = '<p><a href="%(form)s&entry_0=%(name)s&entry_1=%(date)s&entry_2=%(acc_num)s">Add a plant...</a></p>' % \
+        {'form': plant_change_form_uri, 'name':acc.name,
+         'date': datetime.date.today(), 'acc_num': acc.acc_num}
+    body.append(add_form_href)
     session.close()
-    return template('main', body=acc_table + '<br />' + plant_table)
+    return template('main', body='\n'.join(body))
 
 
 @route('/search')
@@ -158,8 +166,9 @@ def search():
     query = session.query(Accession).\
         filter(sa.or_(Accession.acc_num==q,
                       lower(Accession.genus)==q.lower(),
-                      lower(Accession.common_name).like('%%%s%%'%q.lower()))).\
-                      order_by(Accession.name)
+                      lower(Accession.common_name).like('%%%s%%'%q.lower()),
+                      Accession.acc_num.like('%%%s' % q.lower()))).\
+                   order_by(Accession.name)
     results = []
     for row in query:
         link = build_accession_link(row.acc_num)
