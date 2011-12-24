@@ -5,7 +5,7 @@ import os
 import traceback
 
 from bottle import request, route, run, template, debug, post, get, put, \
-    TEMPLATE_PATH
+    static_file, TEMPLATE_PATH
 import sqlalchemy as sa
 
 import config
@@ -13,7 +13,8 @@ import model
 from model import Accession, Plant
 
 # look in current directory for templates
-TEMPLATE_PATH.append(os.path.split(__file__)[0])
+WORKING_DIR = os.path.split(__file__)[0]
+TEMPLATE_PATH.append(WORKING_DIR)
 
 # URI for form for updating plants
 plant_change_form_uri = 'http://spreadsheets.google.com/viewform?formkey=dG03bFlPNDMwUnlUazZXVUdTdjdZeXc6MQ'
@@ -37,6 +38,11 @@ def index():
     """
     body = ''
     return template('main', body=body)
+
+
+@route('/static/<filename:path>')
+def static(filename):
+    return static_file(filename, root='/'.join([WORKING_DIR, 'static']))
 
 
 def build_accession_link(acc_num):
@@ -166,6 +172,7 @@ def search():
     lower = lambda c: sa.func.lower(c)
     query = session.query(Accession).\
         filter(sa.or_(Accession.acc_num==q,
+                      Accession.acc_num.like('%%%s' % q.lower()),
                       lower(Accession.genus)==q.lower(),
                       lower(Accession.common_name).like('%%%s%%'%q.lower()),
                       Accession.acc_num.like('%%%s' % q.lower()))).\
@@ -190,7 +197,7 @@ def admin_get():
     return template('admin', message=msg)
 
 
-def make_accession(row):
+def make_accession_row(row):
     """
     Convert a row from the BG-Base CSV dump to our model.
     """
@@ -265,7 +272,7 @@ def admin_post():
             for row in reader:
                 if not row['ACCESSIONS'].strip(): # why are them acc nums w/ ' '
                    continue
-                rows.append(make_accession(row))
+                rows.append(make_accession_row(row))
             insert = Accession.__table__.insert()
             conn = model.engine.connect()
             conn.execute(insert, *rows)
