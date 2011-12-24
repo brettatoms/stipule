@@ -1,3 +1,4 @@
+import ConfigParser
 import os
 
 import sqlalchemy as sa
@@ -5,10 +6,9 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-# TODO: use ConfigParser to read uri from stipule.config
-#uri = 'sqlite:///:memory:'
-#uri = 'sqlite:///test.db'
-uri = os.environ['DATABASE_URL']
+import config
+
+uri = config.get('database_url')
 engine = sa.create_engine(uri, echo=True)
 Session = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()

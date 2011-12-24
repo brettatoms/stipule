@@ -8,6 +8,7 @@ from bottle import request, route, run, template, debug, post, get, put, \
     TEMPLATE_PATH
 import sqlalchemy as sa
 
+import config
 import model
 from model import Accession, Plant
 
@@ -293,8 +294,11 @@ def admin_post():
     return template('admin', message=msg)
 
 
-# TODO: use ConfigParser to read host, port from config
-debug(True)
-#run(host='localhost', port='8080', reloader=True)
-run(host='0.0.0.0', port=os.environ['PORT'], reloader=True)
+if config.get('debug').lower() == 'true':
+    debug(True)
+
+# run the app
+host = config.get('host')
+port = config.get('port')
+run(host=host, port=port, reloader=True)
 
