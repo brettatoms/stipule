@@ -17,7 +17,7 @@ WORKING_DIR = os.path.split(__file__)[0]
 TEMPLATE_PATH.append(WORKING_DIR)
 
 # URI for form for updating plants
-plant_change_form_uri = 'http://spreadsheets.google.com/viewform?formkey=dG03bFlPNDMwUnlUazZXVUdTdjdZeXc6MQ'
+plant_change_form_uri = config.get('plant_change_form_uri')
 
 # maps of plant condition codes to strings
 condition_map = {'A': 'Alive',
@@ -94,7 +94,8 @@ def build_plants_table(accession):
     parts = ['<div>']
     parts.append('Plants:')
     parts.append('<table>')
-    map_href = '<a href="/static/map-current.png">map</a>'
+    map_uri = config.get('map_uri')
+    map_href = '<a href="%s">map</a>' % map_uri
     plants_href = '<a href="%(form)s&entry_0=%(name)s&entry_1=%(date)s&entry_2=%(acc_num)s&entry_3=%(qualifier)s&entry_5=%(location)s">%(plant)s</a>'
     for plant in accession.plants:
         parts.append('<tr>')
