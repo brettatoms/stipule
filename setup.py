@@ -2,7 +2,8 @@ import os
 import sys
 
 usage = """setup.py <command>
-  - clear: remove unnecessary files
+  - deploy: deploy app to heroku
+  - clean: remove unnecessary files
 """
 
 def clean():
@@ -18,8 +19,13 @@ def clean():
                     os.remove(p)
                 map(delete ,[os.path.join(path, m) for m in matches])
 
+def deploy():
+    os.system('git push heroku')
+
+
 if __name__ == '__main__':
-    actions = {'clean': clean}
+    actions = {'clean': clean,
+               'deploy': deploy}
 
     if len(sys.argv) < 2 or sys.argv[1] not in actions:
         print usage
