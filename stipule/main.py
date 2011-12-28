@@ -175,6 +175,7 @@ def search():
         filter(sa.or_(Accession.acc_num==q,
                       Accession.acc_num.like('%%%s' % q.lower()),
                       lower(Accession.genus)==q.lower(),
+                      lower(Accession.name).like('%%%s%%' % q.lower()),
                       lower(Accession.common_name).like('%%%s%%'%q.lower()))).\
                    order_by(Accession.name)
     results = []
