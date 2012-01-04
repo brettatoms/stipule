@@ -49,7 +49,9 @@ def build_accession_link(acc_num):
     acc_link = '<a %(style)s href="/acc?acc_num=%(acc_num)s">%(acc_num)s</a>'
     style = ''
     session = model.Session()
-    query = session.query(Plant).filter(Plant.acc_num == acc_num and not Plant.condition in ("D", "R", "U"))
+    query = session.query(Plant).\
+        filter(Plant.acc_num==acc_num).\
+        filter(sa.not_(Plant.condition.in_(('D','R','U'))))
     if query.count() == 0:
         style = 'style="color: #C00"'
     session.close()

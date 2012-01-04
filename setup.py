@@ -19,6 +19,7 @@ def clean():
                     os.remove(p)
                 map(delete ,[os.path.join(path, m) for m in matches])
 
+
 def deploy():
     os.system('git push heroku')
 
