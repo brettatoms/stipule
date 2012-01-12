@@ -246,7 +246,7 @@ def make_plant(row):
     colmap['loc_date'] = 'CUR_PLT_DT'
     colmap['loc_nplants'] = '#_PL'
     colmap['condition'] = 'CO'
-    colmap['checked_data'] = 'CUR_CK_DT'
+    colmap['checked_date'] = 'CUR_CK_DT'
     colmap['checked_note'] = 'CURRENT_CHECK_NOTE'
     colmap['checked_by'] = 'CUR_CHK_BY'
     for key, value in colmap.iteritems():
