@@ -70,6 +70,7 @@ def build_accession_table(acc):
     name_href = name_href + google_href
     parts.append(row % ('Name:', name_href%{'name': cgi.escape(acc.name)}))
     parts.append(row % ('Acc #:', acc.acc_num))
+    parts.append(row % ('Family:', acc.family.capitalize()))
     parts.append(row % ('Common name:', acc.common_name))
     parts.append(row % ('Range:', acc.range))
     parts.append(row % ("Misc. Notes:", acc.misc_notes))
@@ -122,7 +123,7 @@ def build_plants_table(accession):
         parts.append('</tr><tr>')
         checked_date = plant.checked_date
         if not checked_date:
-            checked_data = '??'
+            checked_date = '??'
         condition = condition_map.get(plant.condition, plant.condition)
         if plant.condition in ('DRU'):
             condition = '<span style="color:red">%s</span>' % condition
@@ -178,8 +179,9 @@ def search():
                       Accession.acc_num.like('%%%s' % q.lower()),
                       lower(Accession.genus)==q.lower(),
                       lower(Accession.name).like('%%%s%%' % q.lower()),
-                      lower(Accession.common_name).like('%%%s%%'%q.lower()))).\
-                   order_by(Accession.name)
+                      lower(Accession.common_name).like('%%%s%%'%q.lower()),
+                      lower(Accession.family)==q.lower()
+                      )).order_by(Accession.name)
     results = []
     for row in query:
         link = build_accession_link(row.acc_num)
@@ -209,17 +211,18 @@ def make_accession_row(row):
     colmap = {}
     colmap['acc_num'] = 'ACCESSIONS'
     colmap['genus'] = 'GENUS'
+    colmap['family'] = 'FAM'
     colmap['name'] = 'NAME'
-    colmap['common_name'] = 'COMMON_NAMES'
+    colmap['common_name'] = 'COMMON_NAME(S)'
     colmap['range'] = 'RANGE'
     colmap['misc_notes'] = 'MISCELLANEOUS'
     colmap['recd_dt'] = 'RECEIVED_DT'
-    colmap['recd_amt'] = 'NUM_RCD'
-    colmap['recd_as'] = 'RECEIVED_AS'
+    colmap['recd_amt'] = '#RCD'
+    colmap['recd_as'] = 'RECEIVED AS'
     colmap['recd_size'] = 'RECD_SIZE'
     colmap['recd_notes'] = 'RECD_NOTES'
     colmap['psource_current'] = 'PSOURCE_CURRENT'
-    colmap['psource_acc_num'] = 'PSOURCE_ACC_NUM'
+    colmap['psource_acc_num'] = 'PSOURCE_ACC_#'
     colmap['psource_acc_dt'] = 'PS_ACC_DT'
     colmap['psource_misc'] = 'PSOURCE_MISC'
     for key, value in colmap.iteritems():

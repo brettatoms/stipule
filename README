@@ -2,7 +2,7 @@ Stipule is a web app for searching garden accession records.
 
 To export the accessions for uploading run the following S/List query in BG-Base:
 
-   list accessions genus name species species_2 cultivar cultivar_2 family common_name range misc recd_dt recd_amt recd_as recd_size recd_notes psource_current psource_acc_num psource_acc_dt psource_misc tab c:\accessions.txt ROWCOUNT " "
+   list accessions genus family name species species_2 cultivar cultivar_2 family common_name range misc recd_dt recd_amt recd_as recd_size recd_notes psource_current psource_acc_num psource_acc_dt psource_misc tab c:\accessions.txt ROWCOUNT " "
 
 To export the plants for uploading run the following S/List query in BG-Base:
    

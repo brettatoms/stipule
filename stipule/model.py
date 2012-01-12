@@ -17,6 +17,7 @@ class Accession(Base):
     __tablename__ = 'accession'
     acc_num = Column(String, primary_key=True)
     genus = Column(String, index=True)
+    family = Column(String, index=True)
     name = Column(String)
     common_name = Column(String, index=True)
 
