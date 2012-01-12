@@ -65,10 +65,10 @@ def build_accession_table(acc):
     parts = ['<table>']
     row = '<tr><td>%s</td><td>%s</td></tr>'
         #parts.append(row % ('Name:', acc.name))
-    name_href = '<a href="/acc?name=%(name)s">%(name)s</a>'
+    name_href = '<a href="/search?name=%(name)s">%(name)s</a>'
     google_href = '<span style="margin-left: 40px"><a href="http://google.com/search?q=%(name)s">google</a></span>'
     name_href = name_href + google_href
-    parts.append(row % ('Name:', name_href%{'name': cgi.escape(acc.name)}))
+    parts.append(row % ('Name:', name_href % {'name': cgi.escape(acc.name)}))
     parts.append(row % ('Acc #:', acc.acc_num))
     parts.append(row % ('Family:', acc.family.capitalize()))
     parts.append(row % ('Common name:', acc.common_name))
@@ -170,18 +170,24 @@ def search():
     p = "<p>%s</p>"
     body = []
     q = request.query.get('q', '').strip()
-    if not q:
-        return template('main', body='')
+    name = request.query.get('name', '').strip()
     session = model.Session()
+    query = session.query(Accession)
     lower = lambda c: sa.func.lower(c)
-    query = session.query(Accession).\
-        filter(sa.or_(Accession.acc_num==q,
-                      Accession.acc_num.like('%%%s' % q.lower()),
-                      lower(Accession.genus)==q.lower(),
-                      lower(Accession.name).like('%%%s%%' % q.lower()),
-                      lower(Accession.common_name).like('%%%s%%'%q.lower()),
-                      lower(Accession.family)==q.lower()
-                      )).order_by(Accession.name)
+    if q:
+        query = query.\
+            filter(sa.or_(Accession.acc_num==q,
+                          Accession.acc_num.like('%%%s' % q.lower()),
+                          lower(Accession.genus)==q.lower(),
+                          lower(Accession.name).like('%%%s%%' % q.lower()),
+                          lower(Accession.common_name).like('%%%s%%'%q.lower()),
+                          lower(Accession.family)==q.lower()
+                          )).order_by(Accession.name)
+    elif name:
+        query = query.filter(Accession.name==name).order_by(Accession.name)
+    else:
+        return template('main', body='')
+
     results = []
     for row in query:
         link = build_accession_link(row.acc_num)
