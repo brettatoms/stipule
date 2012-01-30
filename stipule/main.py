@@ -175,7 +175,7 @@ def search():
     query = session.query(Accession)
     lower = lambda c: sa.func.lower(c)
     if q:
-        if len(q) <= 3:
+        if len(q) < 3:
             return template('main', body='<p>Search string too short.<p>')
         query = query.\
             filter(sa.or_(Accession.acc_num==q,
