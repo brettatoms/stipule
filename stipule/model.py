@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 import config
 
 uri = config.get('database_url')
-engine = sa.create_engine(uri, echo=True)
+engine = sa.create_engine(uri, echo=False)
 Session = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()
 
