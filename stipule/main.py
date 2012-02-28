@@ -31,6 +31,11 @@ condition_map = {'A': 'Alive',
                  'R': 'Deaccessioned/Removed',
                  'U': 'Unable to locate'}
 
+@route('/favicon.ico')
+def favicon():
+    return static_file('favicon.ico', root='/'.join([WORKING_DIR, 'static']))
+
+
 
 @route('/')
 def index():
