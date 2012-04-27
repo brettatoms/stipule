@@ -25,6 +25,7 @@
   <form name="search_form" action="/search" method="get">
     <div>
       <input type="text" name="q" onfocus="formInUse=true;"/>
+      <span style="margin-left: 40px"><a href="https://zxing.appspot.com/scan?ret=http://naplesbg.herokuapp.com/search?q={CODE}">scan</a></span>
       <span style="margin-left: 40px"><a href="/static/map-current.png">view map</a></span>
       <br />
       <input type="submit" value="Search">
