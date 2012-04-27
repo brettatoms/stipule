@@ -150,6 +150,10 @@ def acc():
     Return the page for a single accession.
     """
     acc_num = request.query.get('acc_num', '').strip()
+    # remove the qualifier if it has one
+    num = acc_num.split('*')[0]
+    if num is not None:
+        acc_num = num
     session = model.Session()
     query = session.query(Accession).filter(Accession.acc_num==acc_num)
     acc = query.first()
