@@ -7,6 +7,7 @@
   <style type="text/css">
     a {color: #00C}
     .action_box {background-color: #CCC; margin: 10px; padding: 10px}
+    div#message {display: none;}
   </style>
   <script type="text/javascript">
     var formInUse = false;
@@ -17,18 +18,19 @@
     }
     }
   </script>
-  <!-- <script type="text/javascript" src="http://www.google.com/jsapi"></script> -->
-  <!-- <script type="text/javascript"> google.load("jquery", "1.3.2"); </script> -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="/admin.js"></script>
+
 </head>
 <body>
   <h1>Stipule - Admin</h1>
-  <div>
-    {{ message }}
+  <div id="message">
   </div>
 
   <div class="action_box">
     <p>Upload Accessions</p>
-    <form action="/admin" method="post" enctype="multipart/form-data"> 
+    <form id="acc_upload" action="/admin" method="post" 
+	  enctype="multipart/form-data"> 
       <input type="file" name="data" />
       <input type="hidden" name="action" value="upload_accessions" />
       <input type="submit" value="Upload" />	  
@@ -37,7 +39,8 @@
 
   <div class="action_box">
     <p>Upload Plants</p>
-    <form action="/admin" method="post" enctype="multipart/form-data"> 
+    <form id="plant_upload", action="/admin" method="post" 
+	  enctype="multipart/form-data"> 
       <input type="file" name="data" />
       <input type="hidden" name="action" value="upload_plants" />
       <input type="submit" value="Upload" />	  
@@ -46,7 +49,8 @@
 
   <div class="action_box">
     <p>
-      <form action="/admin" method="post" enctype="multipart/form-data">
+      <form id="create_db" action="/admin" method="post" 
+	    enctype="multipart/form-data">
 	<input type="hidden" name="action" value="admin_create" />
 	<input type="submit" value="Create database" />	
       </form>

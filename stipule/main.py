@@ -35,6 +35,9 @@ condition_map = {'A': 'Alive',
 def favicon():
     return static_file('favicon.ico', root='/'.join([WORKING_DIR, 'static']))
 
+@route('/admin.js')
+def adminjs():
+    return static_file('admin.js', root=WORKING_DIR)
 
 
 @route('/')
@@ -321,7 +324,9 @@ def admin_post():
             msg = "All plants uploaded."
         else:
             msg = "Choose a file."
-    return template('admin', message=msg)
+
+    # return message to be used added to top of admin page
+    return msg
 
 
 if config.get('debug').lower() == 'true':
