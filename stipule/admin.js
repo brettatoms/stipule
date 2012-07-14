@@ -10,8 +10,18 @@ $(document).ready(function() {
 // submit event handler for admin POST
 function on_submit(event) {
     event.preventDefault();
-    $.post('/admin', event.data,
-	   function (data) {
-	       $('#message').html(data).fadeIn();
-	   });
+    filename = $(event.target).find('input').filter('[type="file"]').val();
+    form_data = new FormData(event.target);
+    form_data.append('file', filename);
+    $.ajax({
+	url: /admin'',
+	data: form_data,
+	cache: false,
+	contentType: false,
+	processData: false,
+	type: 'POST',
+	success: function(data){
+            alert(data);
+	}
+    });
 }
