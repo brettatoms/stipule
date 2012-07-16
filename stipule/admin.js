@@ -14,14 +14,14 @@ function on_submit(event) {
     form_data = new FormData(event.target);
     form_data.append('file', filename);
     $.ajax({
-	url: /admin'',
+	url: '/admin',
 	data: form_data,
 	cache: false,
 	contentType: false,
 	processData: false,
 	type: 'POST',
 	success: function(data){
-            alert(data);
+		$('#message').text(data).fadeIn()
 	}
     });
 }
