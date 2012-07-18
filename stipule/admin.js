@@ -1,4 +1,5 @@
 
+// this document.ready() should only be called on the admin.tpl
 $(document).ready(function() {
 	// bind event handlers
 	$('#acc_upload').on('submit', {action: "upload_accessions"}, on_submit);
