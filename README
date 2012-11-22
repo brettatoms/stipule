@@ -1,4 +1,4 @@
-Stipule is a web app for searching garden accession records.
+Stipule is a web app for searching garden accession records.  This project was originally created for [Naples Botanical Garden](http://www.naplesgarden.org).
 
 To export the accessions for uploading run the following S/List query in BG-Base:
 
@@ -7,3 +7,4 @@ To export the accessions for uploading run the following S/List query in BG-Base
 To export the plants for uploading run the following S/List query in BG-Base:
    
    list plants acc_num acc_num_qual current_sex current_location_full current_location current_location_change_type current_plant_dt current_num_plts current_condition current_check_dt current_check_note current_check_by tab c:\plants.txt ROWCOUNT " "
+
