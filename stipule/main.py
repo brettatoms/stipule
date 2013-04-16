@@ -39,6 +39,10 @@ def favicon():
 def adminjs():
     return static_file('admin.js', root=WORKING_DIR)
 
+@route('/main.js')
+def mainjs():
+    return static_file('main.js', root=WORKING_DIR)
+
 
 @route('/')
 def index():
@@ -53,17 +57,20 @@ def static(filename):
     return static_file(filename, root='/'.join([WORKING_DIR, 'static']))
 
 
-def build_accession_link(acc_num):
-    acc_link = '<a %(style)s href="/acc?acc_num=%(acc_num)s">%(acc_num)s</a>'
-    style = ''
+def build_accession_div(accession):
+    """
+    """
+    div = '<div %(class)s><a %(class)s href="/acc?acc_num=%(acc_num)s">%(acc_num)s</a> - %(name)s</div>'
+    cls = ''
     session = model.Session()
     query = session.query(Plant).\
-        filter(Plant.acc_num==acc_num).\
+        filter(Plant.acc_num==accession.acc_num).\
         filter(sa.not_(Plant.condition.in_(('D','R','U'))))
     if query.count() == 0:
-        style = 'style="color: #C00"'
+        cls = 'class="dead"'
     session.close()
-    return acc_link % {'style': style, 'acc_num': acc_num}
+    return div % {'class': cls, 'acc_num': accession.acc_num,
+                  'name': accession.name}
 
 
 def build_accession_table(acc):
@@ -186,9 +193,10 @@ def search():
     session = model.Session()
     query = session.query(Accession)
     lower = lambda c: sa.func.lower(c)
+    min_length = 3
     if q:
-        if len(q) < 3:
-            return template('main', body='<p>Search string too short.<p>')
+        if len(q) < min_length:
+            return template('main', body='<p>Search string needs to be at least %s characters long.<p>' % min_length)
         query = query.\
             filter(sa.or_(Accession.acc_num==q,
                           Accession.acc_num.like('%%%s' % q.lower()),
@@ -204,11 +212,11 @@ def search():
 
     results = []
     for row in query:
-        link = build_accession_link(row.acc_num)
-        results.append('<div>%(link)s - %(name)s</div>' \
-                           % {'link': link, 'name': row.name})
+        div = build_accession_div(row)
+        results.append(div)
     session.close()
     body.append("\n".join(results))
+    body.append('<br /><div onclick="show_dead()" id="show-dead" style="cursor: pointer">Show dead...</div>')
     body.append("<p>%s results.</p>" % len(results))
     return template('main', body='\n'.join(body))
 

@@ -6,7 +6,13 @@
   <meta name="MobileOptimized" />
   <style type="text/css">
     a {color: #00C}
+    a.dead {color: #C00 }
+    div.dead { display: none }
+    #show-dead {text-decoration: underline;}
+    #show-dead:hover {color: blue;}
   </style>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="/main.js"></script>
   <script type="text/javascript">
     var formInUse = false;
     function setFocus()

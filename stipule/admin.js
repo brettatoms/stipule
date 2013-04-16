@@ -1,4 +1,5 @@
 
+// this document.ready() should only be called on the admin.tpl
 $(document).ready(function() {
 	// bind event handlers
 	$('#acc_upload').on('submit', {action: "upload_accessions"}, on_submit);
@@ -14,14 +15,14 @@ function on_submit(event) {
     form_data = new FormData(event.target);
     form_data.append('file', filename);
     $.ajax({
-	url: /admin'',
+	url: '/admin',
 	data: form_data,
 	cache: false,
 	contentType: false,
 	processData: false,
 	type: 'POST',
 	success: function(data){
-            alert(data);
+		$('#message').text(data).fadeIn()
 	}
     });
 }
