@@ -222,55 +222,60 @@ def admin_get():
     return template('admin', message=msg)
 
 
+acc_colmap = {}
+acc_colmap['acc_num'] = 'ACCESSIONS'
+acc_colmap['genus'] = 'GENUS'
+acc_colmap['family'] = 'FAM'
+acc_colmap['name'] = 'NAME'
+acc_colmap['common_name'] = 'COMMON_NAME(S)'
+acc_colmap['range'] = 'RANGE'
+acc_colmap['misc_notes'] = 'MISCELLANEOUS'
+acc_colmap['recd_dt'] = 'RECEIVED_DT'
+acc_colmap['recd_amt'] = '#RCD'
+acc_colmap['recd_as'] = 'RECEIVED AS'
+acc_colmap['recd_size'] = 'RECD_SIZE'
+acc_colmap['recd_notes'] = 'RECD_NOTES'
+acc_colmap['psource_current'] = 'PSOURCE_CURRENT'
+acc_colmap['psource_acc_num'] = 'PSOURCE_ACC_#'
+acc_colmap['psource_acc_dt'] = 'PS_ACC_DT'
+acc_colmap['psource_misc'] = 'PSOURCE_MISC'
+
 def make_accession_row(row):
     """
     Convert a row from the BG-Base CSV dump to our model.
     """
     acc = dict()
-    set_row = lambda d, s: acc.setdefault(d, row[s].decode('iso-8859-1'))
-    colmap = {}
-    colmap['acc_num'] = 'ACCESSIONS'
-    colmap['genus'] = 'GENUS'
-    colmap['family'] = 'FAM'
-    colmap['name'] = 'NAME'
-    colmap['common_name'] = 'COMMON_NAME(S)'
-    colmap['range'] = 'RANGE'
-    colmap['misc_notes'] = 'MISCELLANEOUS'
-    colmap['recd_dt'] = 'RECEIVED_DT'
-    colmap['recd_amt'] = '#RCD'
-    colmap['recd_as'] = 'RECEIVED AS'
-    colmap['recd_size'] = 'RECD_SIZE'
-    colmap['recd_notes'] = 'RECD_NOTES'
-    colmap['psource_current'] = 'PSOURCE_CURRENT'
-    colmap['psource_acc_num'] = 'PSOURCE_ACC_#'
-    colmap['psource_acc_dt'] = 'PS_ACC_DT'
-    colmap['psource_misc'] = 'PSOURCE_MISC'
-    for key, value in colmap.iteritems():
-        set_row(key, value)
+    for key, value in acc_colmap.iteritems():
+        if row[value] is None:
+            acc[key] = None
+        else:
+            acc.setdefault(key, row[value].decode('iso-8859-1'))
     return acc
 
+plant_colmap = {}
+plant_colmap['acc_num'] = 'ACCESSION_#'
+plant_colmap['qualifier'] = 'QUAL'
+plant_colmap['sex'] = 'S'
+plant_colmap['loc_name'] = 'CURRENT_LOCATION'
+plant_colmap['loc_code'] = 'CUR_LOC'
+plant_colmap['loc_change_type'] = 'CLCT'
+plant_colmap['loc_date'] = 'CUR_PLT_DT'
+plant_colmap['loc_nplants'] = '#_PL'
+plant_colmap['condition'] = 'CO'
+plant_colmap['checked_date'] = 'CUR_CK_DT'
+plant_colmap['checked_note'] = 'CURRENT_CHECK_NOTE'
+plant_colmap['checked_by'] = 'CUR_CHK_BY'
 
 def make_plant(row):
     """
     Convert a row from the BG-Base CSV dump to our model.
     """
     plant = dict()
-    set_row = lambda d, s: plant.setdefault(d, row[s].decode('iso-8859-1'))
-    colmap = {}
-    colmap['acc_num'] = 'ACCESSION_#'
-    colmap['qualifier'] = 'QUAL'
-    colmap['sex'] = 'S'
-    colmap['loc_name'] = 'CURRENT_LOCATION'
-    colmap['loc_code'] = 'CUR_LOC'
-    colmap['loc_change_type'] = 'CLCT'
-    colmap['loc_date'] = 'CUR_PLT_DT'
-    colmap['loc_nplants'] = '#_PL'
-    colmap['condition'] = 'CO'
-    colmap['checked_date'] = 'CUR_CK_DT'
-    colmap['checked_note'] = 'CURRENT_CHECK_NOTE'
-    colmap['checked_by'] = 'CUR_CHK_BY'
-    for key, value in colmap.iteritems():
-        set_row(key, value)
+    for key, value in plant_colmap.iteritems():
+        if row[value] is None:
+            plant[key] = None
+        else:
+            plant.setdefault(key, row[value].decode('iso-8859-1'))
     return plant
 
 
